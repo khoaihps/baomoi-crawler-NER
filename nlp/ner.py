@@ -7,8 +7,9 @@ import pandas as pd
 
 _logger = logging.getLogger(__name__)
 
+
 class NEREntityCounter:
-    def __init__(self, max_entities: int, output_fp:str):
+    def __init__(self, max_entities: int, output_fp: str) -> None:
         self.max_entities = max_entities
         self.output_fp = output_fp
         model_name = "NlpHUST/ner-vietnamese-electra-base"
@@ -17,7 +18,7 @@ class NEREntityCounter:
         self.nlp = pipeline("ner", model=model, tokenizer=tokenizer)
         self.writer = Writer()
 
-    def aggregate_entities(self, ner_results):
+    def aggregate_entities(self, ner_results: list) -> list:
         entities = []
         current_entity = ""
         current_type = None
@@ -28,7 +29,9 @@ class NEREntityCounter:
 
             if entity_type.startswith("B-"):
                 if current_entity:
-                    entities.append({"text": current_entity.strip(), "type": current_type})
+                    entities.append(
+                        {"text": current_entity.strip(), "type": current_type}
+                    )
                 current_entity = word
                 current_type = entity_type[2:]
 
@@ -39,7 +42,9 @@ class NEREntityCounter:
                     current_entity += " " + word
             else:
                 if current_entity:
-                    entities.append({"text": current_entity.strip(), "type": current_type})
+                    entities.append(
+                        {"text": current_entity.strip(), "type": current_type}
+                    )
                     current_entity = ""
                     current_type = None
 
@@ -48,7 +53,7 @@ class NEREntityCounter:
 
         return entities
 
-    def count_entities_in_text(self, text):
+    def count_entities_in_text(self, text: str) -> dict:
         text = text_normalize(text)
         segs = sent_tokenize(text)
         ner_results_batch = self.nlp(segs)
@@ -66,11 +71,11 @@ class NEREntityCounter:
 
         return counter
 
-    def count_entities_in_dataframe(self, df):
+    def count_entities_in_dataframe(self, df: pd.DataFrame) -> pd.DataFrame:
         total_counter = defaultdict(Counter)
 
         for idx, row in df.iterrows():
-            _logger.info("⏳ Entity Counter for article %d / %d",idx, len(df))
+            _logger.info("⏳ Entity Counter for article %d / %d", idx, len(df))
             text = row.get("content", "")
             if pd.isna(text) or not text.strip():
                 continue
@@ -81,11 +86,13 @@ class NEREntityCounter:
         rows = []
         for entity_type, type_counter in total_counter.items():
             for entity_text, count in type_counter.items():
-                rows.append({
-                    "entity_text": entity_text,
-                    "entity_type": entity_type,
-                    "count": count
-                })
+                rows.append(
+                    {
+                        "entity_text": entity_text,
+                        "entity_type": entity_type,
+                        "count": count,
+                    }
+                )
 
         df_entities = pd.DataFrame(rows)
         return df_entities
@@ -96,5 +103,7 @@ class NEREntityCounter:
 
         df_result_sorted = df_result.sort_values(by="count", ascending=False)
 
-        df_result_sorted.head(self.max_entities).to_csv(self.output_fp, sep="|", index=False, encoding="utf-8")
+        df_result_sorted.head(self.max_entities).to_csv(
+            self.output_fp, sep="|", index=False, encoding="utf-8"
+        )
         _logger.info("✅ Entities counts saved to %s", self.output_fp)

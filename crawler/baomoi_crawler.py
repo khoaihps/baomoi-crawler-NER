@@ -11,17 +11,23 @@ from selenium.webdriver.chrome.service import Service
 from selenium.common.exceptions import NoSuchElementException
 from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.chrome.options import Options
-from tenacity import retry, wait_exponential, stop_after_attempt, retry_if_exception_type
+from tenacity import (
+    retry,
+    wait_exponential,
+    stop_after_attempt,
+    retry_if_exception_type,
+)
 from common.db import SQLiteHook
 from common.writer import Writer
 
 _logger = logging.getLogger("__main__")
 
+
 class BaomoiCrawler:
     BASE_URL = "https://baomoi.com"
     LOCAL_TIMEZONE = timezone(timedelta(hours=7))
 
-    def __init__(self, min_pages: int, topic: str, max_article_age_days: int):
+    def __init__(self, min_pages: int, topic: str, max_article_age_days: int) -> None:
         self.TOPIC_URL = f"{self.BASE_URL}/{topic}.epi"
         self.min_pages = min_pages
         self.max_article_age_days = max_article_age_days
@@ -33,8 +39,7 @@ class BaomoiCrawler:
         chrome_options.add_argument("--disable-dev-shm-usage")
 
         self.driver = webdriver.Chrome(
-            service=Service(ChromeDriverManager().install()),
-            options=chrome_options
+            service=Service(ChromeDriverManager().install()), options=chrome_options
         )
 
         self.cache = SQLiteHook()
@@ -47,14 +52,14 @@ class BaomoiCrawler:
     @retry(
         wait=wait_exponential(multiplier=1, min=2, max=10),
         stop=stop_after_attempt(3),
-        retry=retry_if_exception_type(requests.RequestException)
+        retry=retry_if_exception_type(requests.RequestException),
     )
-    def fetch_html(self, url):
+    def fetch_html(self, url: str) -> str:
         response = requests.get(url, timeout=10)
         response.raise_for_status()
         return response.text
 
-    def fetch_html_js_rendering(self, url):
+    def fetch_html_js_rendering(self, url: str) -> str:
         self.driver.get(url)
         time.sleep(2)
 
@@ -62,7 +67,9 @@ class BaomoiCrawler:
         scroll_pause_time = 1
 
         while True:
-            self.driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+            self.driver.execute_script(
+                "window.scrollTo(0, document.body.scrollHeight);"
+            )
             time.sleep(scroll_pause_time)
 
             new_height = self.driver.execute_script("return document.body.scrollHeight")
@@ -74,7 +81,7 @@ class BaomoiCrawler:
 
         return self.driver.page_source
 
-    def extract_urls(self, html):
+    def extract_urls(self, html: str) -> list:
         soup = BeautifulSoup(html, "html.parser")
         urls = set()
 
@@ -86,7 +93,7 @@ class BaomoiCrawler:
 
         return list(urls)
 
-    def extract_next_page_url(self, html):
+    def extract_next_page_url(self, html: str) -> str | None:
         soup = BeautifulSoup(html, "html.parser")
         load_more_div = soup.find("div", class_="load-more")
 
@@ -97,7 +104,7 @@ class BaomoiCrawler:
 
         return None
 
-    def parse_article_from_url(self, url) -> dict | None:
+    def parse_article_from_url(self, url: str) -> dict | None:
         html = self.fetch_html(url)
         if not html:
             return None
@@ -144,7 +151,7 @@ class BaomoiCrawler:
             "url": url,
         }
 
-    def process_article_url(self, url) -> None:
+    def process_article_url(self, url: str) -> None:
         try:
             if self.cache.has_visited(url):
                 return
@@ -174,7 +181,7 @@ class BaomoiCrawler:
         except Exception as e:
             _logger.error("❗ Error scraping %s: %s", url, e)
 
-    def run(self):
+    def run(self) -> None:
         start_url = self.TOPIC_URL
 
         while self.count < self.min_pages and start_url:

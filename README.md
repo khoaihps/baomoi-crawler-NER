@@ -33,11 +33,11 @@ May need to reset the cache db in `result/cached_urls.db`
 
 ### Available arguments:
 
-| Argument      | Description                                                                     | Default   |
-| ------------- |---------------------------------------------------------------------------------|-----------|
-| `--min_pages` | Minimum number of pages to crawl                                                | '200'     |
-| `--topic`     | Topic slug (e.g., `tin-moi`, `the-gioi`, ... You can find more on its website.) | 'tin-moi' |
-| `--age_days`  | Max allowed article age (in days)                                               | '4'       |
+| Argument      | Description                                                                     | Default |
+| ------------- |---------------------------------------------------------------------------------|--------|
+| `--min_pages` | Minimum number of pages to crawl                                                | `200`   |
+| `--topic`     | Topic slug (e.g., `tin-moi`, `the-gioi`, ... You can find more on its website.) | `tin-moi` |
+| `--age_days`  | Max allowed article age (in days)                                               | `4`     |
 
 Default output file path: `./result/articles.csv`
 Can be changed in `common/config.py`

@@ -11,9 +11,18 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser(description="NER Entity Counter arguments")
 
-    parser.add_argument("--output_fp", type=str, default=config.DEFAULT_NER_OUTPUT_FP, help="Output file path")
-    parser.add_argument("--max_entities", type=int, default=config.DEFAULT_MAX_ENTITIES,
-                        help="Number of most frequent entities to return")
+    parser.add_argument(
+        "--output_fp",
+        type=str,
+        default=config.DEFAULT_NER_OUTPUT_FP,
+        help="Output file path",
+    )
+    parser.add_argument(
+        "--max_entities",
+        type=int,
+        default=config.DEFAULT_MAX_ENTITIES,
+        help="Number of most frequent entities to return",
+    )
 
     args = parser.parse_args()
 
