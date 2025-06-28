@@ -1,0 +1,8 @@
+tenacity==9.1.2
+pandas==2.3.0
+webdriver-manager==4.0.2
+selenium==4.33.0
+transformers==4.53.0
+torch==2.7.1
+underthesea==6.8.4
+beautifulsoup4==4.13.4
