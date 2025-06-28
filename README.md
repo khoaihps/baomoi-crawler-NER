@@ -5,6 +5,11 @@
 * Python 3.11+
 
 ## Installation
+Clone the repository:
+```bash
+git clone https://github.com/khoaihps/baomoi-crawler-NER.git
+cd baomoi-crawler-NER
+```
 
 Install required Python packages:
 
@@ -24,6 +29,8 @@ This module crawls news articles from [https://baomoi.com/](https://baomoi.com/)
 python crawler.py
 ```
 
+May need to reset the cache db in `result/cached_urls.db`
+
 ### Available arguments:
 
 | Argument      | Description                                                                     | Default   |
@@ -34,6 +41,8 @@ python crawler.py
 
 Default output file path: `./result/articles.csv`
 Can be changed in `common/config.py`
+
+
 ---
 
 ## 📌 Entity Counter
@@ -59,6 +68,8 @@ python entity_counter.py
 
 Default output file path: `./result/entities.csv`
 Can be changed in `common/config.py`
+
+
 ---
 
 ## Output
